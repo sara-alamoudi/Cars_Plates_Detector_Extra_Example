@@ -1,0 +1,36 @@
+import cv2
+import numpy as np
+width = 600
+height = 500
+PlateCascade = cv2.CascadeClassifier("haarcascade_russian_plate_number.xml")
+MinArea = 200
+color = (213, 30, 190)
+#To detect face from the webcam
+cap = cv2.VideoCapture(0)
+#Rescal frame and define varibles
+cap.set(3,width)
+cap.set(4,height)
+cap.set(10,200)
+count = 0
+while True:
+    ret,img = cap.read()
+    GrayImg = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    noPlates = PlateCascade.detectMultiScale(GrayImg, 1.08,4)
+    for (x,y,w,h) in noPlates:
+        Area = w*h
+        if Area >MinArea:
+           cv2.rectangle(img,(x,y),(x+w,y+h),(123,54,87),3,lineType=1,shift=0)
+           cv2.putText(img, "Plate Number", (320, 200), cv2.FONT_HERSHEY_COMPLEX, 1, color, 2)
+           imgRoi = img[y:y+h,x:x+w]
+           cv2.imshow("ROI",imgRoi)
+    cv2.imshow("plate Detector",img)
+    if cv2.waitKey(1) & 0xFF == ord('s'):
+        cv2.imwrite("ScannedPlates"+str(count)+".jpg",imgRoi)
+        cv2.rectangle(img,(0,400),(700,300),(69,50,45),cv2.FILLED)
+        cv2.putText(img,"Scan Saved",(130,370),cv2.FONT_HERSHEY_COMPLEX,2,(255,255,255),2)
+        cv2.imshow("plate Detector", img)
+        cv2.waitKey(500)
+        count +=1
+cap.release()
+cv2.destroyAllWindows()
+
